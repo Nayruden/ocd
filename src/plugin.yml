@@ -1,0 +1,3 @@
+name: OChestDump
+main: net.omnivr.ocd.OChestDump
+version: 0.5

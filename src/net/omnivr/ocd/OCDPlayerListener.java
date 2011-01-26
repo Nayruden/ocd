@@ -1,9 +1,11 @@
 package net.omnivr.ocd;
 
+import net.omnivr.olib.Constants;
 import net.omnivr.olib.Trace;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.ContainerBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerChatEvent;
@@ -42,30 +44,43 @@ public class OCDPlayerListener extends PlayerListener {
                 return;
             }
 
-            ContainerBlock chest = (ContainerBlock) block.getState();
-            ItemStack[] chest_contents = chest.getInventory().getContents();
+            ContainerBlock chest1 = (ContainerBlock) block.getState();
+            ContainerBlock chest2 = null;
+            ItemStack[] chest1_contents = chest1.getInventory().getContents();
+            ItemStack[] chest2_contents = null;
+            for (BlockFace neighbor : Constants.NEIGHBORS) {
+                if (block.getRelative(neighbor).getType() == Material.CHEST) {
+                    chest2 = (ContainerBlock) block.getRelative(neighbor).getState();
+                    chest2_contents = chest2.getInventory().getContents();
+                    break;
+                }
+            }
+
             ItemStack[] player_contents = player.getInventory().getContents();
 
             if (pieces[1].equalsIgnoreCase("stash")) {
-                tryFill(player_contents, chest_contents);
+                tryFill(player_contents, chest1_contents);
+                tryFill(player_contents, chest2_contents);
             } else if (pieces[1].equalsIgnoreCase("loot")) {
-                tryFill(chest_contents, player_contents);
+                tryFill(chest1_contents, player_contents);
+                tryFill(chest2_contents, player_contents);
+            } else if (chest2 == null) {
+                ItemStack[] new_chest1_contents = new ItemStack[chest1_contents.length];
+                tryFill(player_contents, new_chest1_contents);
+                tryFill(chest1_contents, player_contents);
+                chest1_contents = new_chest1_contents;
             } else {
-                final int chest_size = chest_contents.length;
-                final int player_size = player_contents.length;
-                if (chest_size < player_size) {
-                    ItemStack[] new_chest_contents = new ItemStack[chest_size];
-                    tryFill(player_contents, new_chest_contents);
-                    tryFill(chest_contents, player_contents);
-                    chest_contents = new_chest_contents;
-                } else {
-                    ItemStack[] new_player_contents = new ItemStack[player_size];
-                    tryFill(chest_contents, new_player_contents);
-                    tryFill(player_contents, chest_contents);
-                    player_contents = new_player_contents;
-                }
+                ItemStack[] new_player_contents = new ItemStack[player_contents.length];
+                tryFill(chest1_contents, new_player_contents);
+                tryFill(chest2_contents, new_player_contents);
+                tryFill(player_contents, chest1_contents);
+                tryFill(player_contents, chest2_contents);
+                player_contents = new_player_contents;
             }
-            chest.getInventory().setContents(chest_contents);
+            chest1.getInventory().setContents(chest1_contents);
+            if (chest2 != null) {
+                chest2.getInventory().setContents(chest2_contents);
+            }
             player.getInventory().setContents(player_contents);
 
             event.setCancelled(true);
@@ -74,6 +89,10 @@ public class OCDPlayerListener extends PlayerListener {
     }
 
     private void tryFill(ItemStack[] inventory_from, ItemStack[] inventory_to) {
+        if (inventory_from == null || inventory_to == null) {
+            return;
+        }
+
         int from_size = inventory_from.length;
         int to_size = inventory_to.length;
         int from_slot = 0;
@@ -82,7 +101,7 @@ public class OCDPlayerListener extends PlayerListener {
                 continue;
             }
 
-            for (; from_slot < from_size && inventory_from[from_slot].getAmount() == 0; from_slot++);
+            for (; from_slot < from_size && (inventory_from[from_slot] == null || inventory_from[from_slot].getAmount() == 0); from_slot++);
             if (from_slot >= from_size) {
                 break;
             }

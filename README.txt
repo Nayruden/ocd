@@ -1,4 +1,4 @@
-OChestDump v0.5
+OChestDump v0.6
 Copyright (c) 2011 Nayruden <http://omnivr.net>
 
 OChestDump allows you to dump the contents of your inventory to a chest, or to
@@ -11,13 +11,18 @@ a chest.
 Loot fits as many items from the chest into your inventory as possible.
 Stash fits as many items from your inventory into the chest as possible.
 Swap simply swaps the items from the chest and your inventory as best as it can.
+You can add an item name or ID after swap or loot to exchange only the specified
+item.
 
 Changelog:
+v0.6 - 1/27/2011
+    * [ADD] Ability to stash and loot only a specific item.
+
 v0.5 - 1/25/2011
     * Initial release.
 
 License:
-This work is licensed under the Creative Commons
+Except where otherwise stated, this work is licensed under the Creative Commons
 Attribution-NonCommercial-ShareAlike 3.0 Unported License. To view a copy of
 this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/ or send a
 letter to Creative Commons, 171 Second Street, Suite 300, San Francisco,

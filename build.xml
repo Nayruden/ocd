@@ -76,6 +76,7 @@
         <jar jarfile="${dist.jar}" update="true">
             <zipfileset src="${dist.jar}" includes="**/*.class" />
             <zipfileset src="${reference.OLib.jar}" includes="**/*.class"/>
+            <zipfileset src="${reference.OLib.jar}" includes="*.db"/>
         </jar>
     </target>
 

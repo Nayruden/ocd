@@ -1,0 +1,3 @@
+# Require the chest to be opened by the player before they're allowed to use any
+# OCD commands on it. This is useful if you're running a chest protection mod.
+require-chest-open: false

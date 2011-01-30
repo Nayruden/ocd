@@ -38,11 +38,11 @@ public class OCDPlayerListener extends PlayerListener {
         if (pieces[0].equalsIgnoreCase("/ocd")) {
             if (pieces.length < 2 || pieces.length > 3 || !(pieces[1].equalsIgnoreCase("stash") || pieces[1].equalsIgnoreCase("loot") || pieces[1].equalsIgnoreCase("swap") || pieces[1].equalsIgnoreCase("sort"))) {
                 player.sendMessage(ChatColor.RED + "/ocd <stash|loot|swap> [item]");
-                player.sendMessage(ChatColor.RED + "OR /ocd sort [<name|amount>]");
+                player.sendMessage(ChatColor.RED + "OR /ocd sort [<name|amount|id>]");
                 player.sendMessage(ChatColor.RED + "stash - Put all items in inventory in the chest you're looking at");
                 player.sendMessage(ChatColor.RED + "loot - Put all items in the chest into your inventory");
                 player.sendMessage(ChatColor.RED + "swap - Exhange items between your inventory and chest");
-                player.sendMessage(ChatColor.RED + "sort - Sort items by name or amount, defaults to name");
+                player.sendMessage(ChatColor.RED + "sort - Sort items by name, amount, or id, defaults to name");
                 player.sendMessage(ChatColor.RED + "Adding item ID/name will exchange only that item for stash/loot");
                 return;
             }
@@ -50,6 +50,11 @@ public class OCDPlayerListener extends PlayerListener {
             Block block = Trace.Simple(player, 4.0); // 4m max
             if (block == null || block.getType() != Material.CHEST) {
                 player.sendMessage(ChatColor.RED + "You need to look at a chest to use this command");
+                return;
+            }
+
+            if (!player.isOp() && plugin.getConfiguration().getBoolean("require-chest-open", false) && !OCDProtectionInfo.isOwner(block.getLocation().toVector(), player.getName())) {
+                player.sendMessage(ChatColor.RED + "You must prove you own this chest by opening it first");
                 return;
             }
 
@@ -83,14 +88,18 @@ public class OCDPlayerListener extends PlayerListener {
 
             if (pieces[1].equalsIgnoreCase("sort")) {
                 compactInventory(chest_contents);
+                Comparator<ItemStack> comparator;
                 if (pieces.length == 2 || pieces[2].equalsIgnoreCase("name")) {
-                    Arrays.sort(chest_contents, new orderByName());
+                    comparator = new orderByName();
                 } else if (pieces[2].equalsIgnoreCase("amount")) {
-                    Arrays.sort(chest_contents, new orderByAmount(chest_contents));
+                    comparator = new orderByAmount(chest_contents);
+                } else if (pieces[2].equalsIgnoreCase("id")) {
+                    comparator = new orderByID();
                 } else {
                     player.sendMessage(ChatColor.RED + "Unknown sort: " + pieces[2]);
                     return;
                 }
+                Arrays.sort(chest_contents, comparator);
             } else { // loot, stash, swap
 
                 int item_id = 0;
@@ -210,6 +219,19 @@ public class OCDPlayerListener extends PlayerListener {
                 return -1;
             }
             return amounts.get(b.getTypeId()) - amounts.get(a.getTypeId());
+        }
+    }
+
+    private class orderByID implements Comparator<ItemStack> {
+
+        public int compare(ItemStack a, ItemStack b) {
+            if (a == null || a.getAmount() == 0) {
+                return 1;
+            }
+            if (b == null || b.getAmount() == 0) {
+                return -1;
+            }
+            return a.getTypeId() - b.getTypeId();
         }
     }
 }

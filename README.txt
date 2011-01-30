@@ -1,4 +1,4 @@
-OChestDump v0.7
+OChestDump v0.8
 Copyright (c) 2011 Nayruden <http://omnivr.net>
 
 OChestDump allows you to dump the contents of your inventory to a chest, or to
@@ -18,7 +18,16 @@ Sort allows you to sort a chest by name (default) or total amount of items.
 
 All commands combine stacks where possible to save space!
 
+You can enable a basic compatibility with chest protection by requiring users to
+open a chest before they're allowed to use OCD on it. Enable this behavior in
+the configuration file.
+
 Changelog:
+v0.8 - 1/30/2011
+    * [ADD] New sort: sort by item id.
+    * [ADD] A basic compatibility with chest protection mods: you must open the
+        chest to prove ownership (Enable this behavior in config).
+
 v0.7 - 1/29/2011
     * [ADD] Sort command.
     * [ADD] All commands will now combine stacks as much as possible.

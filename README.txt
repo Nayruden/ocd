@@ -1,4 +1,4 @@
-OChestDump v0.8
+OChestDump v0.9
 Copyright (c) 2011 Nayruden <http://omnivr.net>
 
 OChestDump allows you to dump the contents of your inventory to a chest, or to
@@ -26,6 +26,12 @@ To build this plugin from source, you'll need OLib, found at
 http://github.com/Nayruden/olib
 
 Changelog:
+v0.9 - 2/07/2011
+    * [ADD] Support for durability/colors throughout OCD, including sorting.
+    * [ADD] Check for Bukkit bug, warns user when the chest is bugged.
+    * [FIX] A bug with compacting air due to Bukkit changes.
+    * [CHANGE] Converted command implementation to new Bukkit command model.
+
 v0.8 - 1/30/2011
     * [ADD] New sort: sort by item id.
     * [ADD] A basic compatibility with chest protection mods: you must open the

@@ -22,6 +22,9 @@ You can enable a basic compatibility with chest protection by requiring users to
 open a chest before they're allowed to use OCD on it. Enable this behavior in
 the configuration file.
 
+To build this plugin from source, you'll need OLib, found at
+http://github.com/Nayruden/olib
+
 Changelog:
 v0.8 - 1/30/2011
     * [ADD] New sort: sort by item id.

@@ -124,7 +124,7 @@ public class OChestDump extends JavaPlugin {
 
             ItemStack[] player_contents = player.getInventory().getContents();
 
-            if (args[0].equalsIgnoreCase("sort")) {                
+            if (args[0].equalsIgnoreCase("sort")) {
                 Comparator<ItemStack> comparator;
                 if (args.length == 1 || args[1].equalsIgnoreCase("name")) {
                     comparator = new orderByName();
@@ -206,8 +206,8 @@ public class OChestDump extends JavaPlugin {
     }
 
     private void compactStack(ItemStack from_stack, ItemStack to_stack) {
-        if (from_stack.getType() != Material.AIR && from_stack.getType() == to_stack.getType()) {
-            int max = from_stack.getType().getMaxStackSize();
+        if (from_stack.getType() != Material.AIR && from_stack.getType() == to_stack.getType() && from_stack.getDurability() == to_stack.getDurability()) {
+            int max = to_stack.getMaxStackSize();
             int diff = Math.min(from_stack.getAmount() + to_stack.getAmount(), max) - to_stack.getAmount();
             to_stack.setAmount(to_stack.getAmount() + diff);
             from_stack.setAmount(from_stack.getAmount() - diff);
@@ -222,7 +222,7 @@ public class OChestDump extends JavaPlugin {
         }
     }
 
-    private class orderByName implements Comparator<ItemStack> {
+    private class orderDefaults implements Comparator<ItemStack> {
 
         public int compare(ItemStack a, ItemStack b) {
             if (a == null || a.getAmount() == 0) {
@@ -231,11 +231,26 @@ public class OChestDump extends JavaPlugin {
             if (b == null || b.getAmount() == 0) {
                 return -1;
             }
+            if (a.getType() == b.getType()) {
+                return a.getDurability() - b.getDurability();
+            }
+            return 0;
+        }
+    }
+
+    private class orderByName extends orderDefaults {
+
+        @Override
+        public int compare(ItemStack a, ItemStack b) {
+            int result = super.compare(a, b);
+            if (result != 0) {
+                return result;
+            }
             return a.getType().toString().compareToIgnoreCase(b.getType().toString());
         }
     }
 
-    private class orderByAmount implements Comparator<ItemStack> {
+    private class orderByAmount extends orderDefaults {
 
         Map<Integer, Integer> amounts = new TreeMap<Integer, Integer>();
 
@@ -249,25 +264,23 @@ public class OChestDump extends JavaPlugin {
             }
         }
 
+        @Override
         public int compare(ItemStack a, ItemStack b) {
-            if (a == null || a.getAmount() == 0) {
-                return 1;
-            }
-            if (b == null || b.getAmount() == 0) {
-                return -1;
+            int result = super.compare(a, b);
+            if (result != 0) {
+                return result;
             }
             return amounts.get(b.getTypeId()) - amounts.get(a.getTypeId());
         }
     }
 
-    private class orderByID implements Comparator<ItemStack> {
+    private class orderByID extends orderDefaults {
 
+        @Override
         public int compare(ItemStack a, ItemStack b) {
-            if (a == null || a.getAmount() == 0) {
-                return 1;
-            }
-            if (b == null || b.getAmount() == 0) {
-                return -1;
+            int result = super.compare(a, b);
+            if (result != 0) {
+                return result;
             }
             return a.getTypeId() - b.getTypeId();
         }

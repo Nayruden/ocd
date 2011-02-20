@@ -1,31 +1,37 @@
-OChestDump v0.9
+OChestDump v1.0
 Copyright (c) 2011 Nayruden <http://omnivr.net>
 
-OChestDump allows you to dump the contents of your inventory to a chest, or to
-dump the contents of a chest into your inventory, or to swap the contents of a
-chest with your inventory, or to sort a chest.
+OChestDump allows you to dump the contents of your inventory to a container, or
+to dump the contents of a container into your inventory, or to swap the contents
+of a container with your inventory, or to sort a container.
 
 To use, type "/ocd swap", "/ocd loot", "/ocd stash", or "/ocd sort" in chat
-while looking at a chest. Typing "/ocd" in chat will bring up the help for the
-command.
+while looking at a chest or dispenser. Typing "/ocd" in chat will bring up the
+help for the command.
 
-Loot fits as many items from the chest into your inventory as possible.
-Stash fits as many items from your inventory into the chest as possible.
-Swap simply swaps the items from the chest and your inventory as best as it can.
+Loot fits as many items from the container into your inventory as possible.
+Stash fits as many items from your inventory into the container as possible.
+Swap simply swaps the items from the container and your inventory.
 You can add an item name or ID after swap or loot to exchange only the specified
 item.
-Sort allows you to sort a chest by name (default) or total amount of items.
+Sort allows you to sort items by name (default) or total amount of items.
 
 All commands combine stacks where possible to save space!
 
 You can enable a basic compatibility with chest protection by requiring users to
-open a chest before they're allowed to use OCD on it. Enable this behavior in
-the configuration file.
+open a container before they're allowed to use OCD on it. Enable this behavior
+in the configuration file.
 
 To build this plugin from source, you'll need OLib, found at
 http://github.com/Nayruden/olib
 
 Changelog:
+v1.0 - 2/19/2011
+    * [ADD] Support for Dispensers.
+    * [CHANGE] Some tweaks that Bukkit devs have deemed necessary.
+    * [CHANGE] Using Bukkit's ray tracer instead of OLib's now.
+    * [REMOVE] Check for Bukkit chest bug, seems to have been fixed now.
+
 v0.9 - 2/07/2011
     * [ADD] Support for durability/colors throughout OCD, including sorting.
     * [ADD] Check for Bukkit bug, warns user when the chest is bugged.

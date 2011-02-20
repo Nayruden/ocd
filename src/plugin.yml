@@ -1,12 +1,12 @@
 name: OChestDump
 main: net.omnivr.ocd.OChestDump
-version: 0.9
+version: 1.0
 website: http://omnivr.net
 author: Nayruden
 description: >
-  OChestDump allows you to dump the contents of your inventory to a chest, or to
-  dump the contents of a chest into your inventory, or to swap the contents of a
-  chest with your inventory, or to sort a chest.
+  OChestDump allows you to dump the contents of your inventory to a container,
+  or to dump the contents of a container into your inventory, or to swap the
+  contents of a container with your inventory, or to sort a container.
 commands:
   ocd:
     description: Gives you access to OCD features. Use "/ocd" for help.

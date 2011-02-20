@@ -3,7 +3,6 @@ package net.omnivr.ocd;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockInteractEvent;
 import org.bukkit.event.block.BlockListener;
-import org.bukkit.event.block.BlockRightClickEvent;
 
 /**
  *

@@ -3,15 +3,14 @@ package net.omnivr.ocd;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import net.omnivr.olib.Constants;
 import net.omnivr.olib.ItemDB;
-import net.omnivr.olib.Trace;
 import net.omnivr.olib.Util;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.ContainerBlock;
@@ -22,9 +21,9 @@ import org.bukkit.event.Event.Priority;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.util.BlockIterator;
 
 /**
  * OChestDump for Bukkit
@@ -34,10 +33,6 @@ import org.bukkit.plugin.PluginManager;
 public class OChestDump extends JavaPlugin {
 
     private final OCDBlockListener blockListener = new OCDBlockListener(this);
-
-    public OChestDump(PluginLoader pluginLoader, Server instance, PluginDescriptionFile desc, File folder, File plugin, ClassLoader cLoader) {
-        super(pluginLoader, instance, desc, folder, plugin, cLoader);
-    }
 
     public void onEnable() {
         // Register our events
@@ -70,56 +65,59 @@ public class OChestDump extends JavaPlugin {
             if (args.length < 1 || args.length > 2 || !(args[0].equalsIgnoreCase("stash") || args[0].equalsIgnoreCase("loot") || args[0].equalsIgnoreCase("swap") || args[0].equalsIgnoreCase("sort"))) {
                 player.sendMessage(ChatColor.RED + "/ocd <stash|loot|swap> [item]");
                 player.sendMessage(ChatColor.RED + "OR /ocd sort [<name|amount|id>]");
-                player.sendMessage(ChatColor.RED + "stash - Put all items in inventory in the chest you're looking at");
-                player.sendMessage(ChatColor.RED + "loot - Put all items in the chest into your inventory");
-                player.sendMessage(ChatColor.RED + "swap - Exhange items between your inventory and chest");
+                player.sendMessage(ChatColor.RED + "stash - Puts your items in the container you're looking at");
+                player.sendMessage(ChatColor.RED + "loot - Put all items in the container into your inventory");
+                player.sendMessage(ChatColor.RED + "swap - Exhange items between your inventory and container");
                 player.sendMessage(ChatColor.RED + "sort - Sort items by name, amount, or id, defaults to name");
                 player.sendMessage(ChatColor.RED + "Adding item ID/name will exchange only that item for stash/loot");
                 return false;
             }
 
-            Block block = Trace.Simple(player, 4.0); // 4m max
-            if (block == null || block.getType() != Material.CHEST) {
-                player.sendMessage(ChatColor.RED + "You need to look at a chest to use this command");
+            Block block = null;
+            for (Iterator<Block> iter = new BlockIterator(player, 4); iter.hasNext();) {
+                block = iter.next();
+                if (block.getType() == Material.CHEST || block.getType() == Material.DISPENSER) {
+                    break;
+                }
+            }
+
+            if (block == null || !(block.getType() == Material.CHEST || block.getType() == Material.DISPENSER)) {
+                player.sendMessage(ChatColor.RED + "You need to look at a chest or dispenser to use this command");
                 return false;
             }
 
             if (!player.isOp() && getConfiguration().getBoolean("require-chest-open", false) && !OCDProtectionInfo.isOwner(block.getLocation().toVector(), player.getName())) {
-                player.sendMessage(ChatColor.RED + "You must prove you own this chest by opening it first");
+                player.sendMessage(ChatColor.RED + "You must prove you own this container by opening it first");
                 return false;
             }
 
-            ContainerBlock chest1 = (ContainerBlock) block.getState();
-            ContainerBlock chest2 = null;
-            ItemStack[] chest1_contents;
-            ItemStack[] chest2_contents = null;
-            try {
-                chest1_contents = chest1.getInventory().getContents();
+            ContainerBlock container1 = (ContainerBlock) block.getState();
+            ContainerBlock container2 = null;
+            ItemStack[] container1_contents;
+            ItemStack[] container2_contents = null;
+            container1_contents = container1.getInventory().getContents();
+            if (block.getType() == Material.CHEST) { // Look for double chest
                 for (BlockFace neighbor : Constants.NEIGHBORS) {
                     if (block.getRelative(neighbor).getType() == Material.CHEST) {
                         ContainerBlock neighbor_chest = (ContainerBlock) block.getRelative(neighbor).getState();
                         ItemStack[] neighbor_chest_contents = neighbor_chest.getInventory().getContents();
                         if (neighbor == BlockFace.NORTH || neighbor == BlockFace.EAST) {
-                            chest2 = chest1;
-                            chest2_contents = chest1_contents;
-                            chest1 = neighbor_chest;
-                            chest1_contents = neighbor_chest_contents;
+                            container2 = container1;
+                            container2_contents = container1_contents;
+                            container1 = neighbor_chest;
+                            container1_contents = neighbor_chest_contents;
                         } else {
-                            chest2 = neighbor_chest;
-                            chest2_contents = neighbor_chest_contents;
+                            container2 = neighbor_chest;
+                            container2_contents = neighbor_chest_contents;
                         }
                         break;
                     }
                 }
-            } catch (ArrayIndexOutOfBoundsException e) {
-                player.sendMessage(ChatColor.RED + "Sorry, but due to a bug in Bukkit, you can't use OCD on newly");
-                player.sendMessage(ChatColor.RED + "placed chests. See http://bit.ly/BukkitChest for more info");
-                return false;
             }
 
-            ItemStack[] chest_contents = chest1_contents;
-            if (chest2 != null) {
-                chest_contents = Util.concat(chest1_contents, chest2_contents);
+            ItemStack[] container_contents = container1_contents;
+            if (container2 != null) {
+                container_contents = Util.concat(container1_contents, container2_contents);
             }
 
             ItemStack[] player_contents = player.getInventory().getContents();
@@ -129,15 +127,15 @@ public class OChestDump extends JavaPlugin {
                 if (args.length == 1 || args[1].equalsIgnoreCase("name")) {
                     comparator = new orderByName();
                 } else if (args[1].equalsIgnoreCase("amount")) {
-                    comparator = new orderByAmount(chest_contents);
+                    comparator = new orderByAmount(container_contents);
                 } else if (args[1].equalsIgnoreCase("id")) {
                     comparator = new orderByID();
                 } else {
                     player.sendMessage(ChatColor.RED + "Unknown sort: " + args[1]);
                     return false;
                 }
-                compactInventory(chest_contents);
-                Arrays.sort(chest_contents, comparator);
+                compactInventory(container_contents);
+                Arrays.sort(container_contents, comparator);
             } else { // loot, stash, swap
 
                 int item_id = 0;
@@ -150,28 +148,28 @@ public class OChestDump extends JavaPlugin {
                 }
 
                 if (args[0].equalsIgnoreCase("stash")) {
-                    tryFill(player_contents, chest_contents, item_id);
+                    tryFill(player_contents, container_contents, item_id);
                 } else if (args[0].equalsIgnoreCase("loot")) {
-                    tryFill(chest_contents, player_contents, item_id);
+                    tryFill(container_contents, player_contents, item_id);
                 } else {
-                    ItemStack[] new_chest_contents = new ItemStack[chest_contents.length];
+                    ItemStack[] new_chest_contents = new ItemStack[container_contents.length];
                     tryFill(player_contents, new_chest_contents, 0);
-                    tryFill(chest_contents, player_contents, 0);
-                    tryFill(chest_contents, new_chest_contents, 0);
-                    chest_contents = new_chest_contents;
+                    tryFill(container_contents, player_contents, 0);
+                    tryFill(container_contents, new_chest_contents, 0);
+                    container_contents = new_chest_contents;
                 }
             }
 
-            if (chest2 == null) {
-                chest1_contents = chest_contents;
+            if (container2 == null) {
+                container1_contents = container_contents;
             } else {
-                System.arraycopy(chest_contents, 0, chest1_contents, 0, chest1_contents.length);
-                System.arraycopy(chest_contents, chest1_contents.length, chest2_contents, 0, chest2_contents.length);
+                System.arraycopy(container_contents, 0, container1_contents, 0, container1_contents.length);
+                System.arraycopy(container_contents, container1_contents.length, container2_contents, 0, container2_contents.length);
             }
 
-            chest1.getInventory().setContents(chest1_contents);
-            if (chest2 != null) {
-                chest2.getInventory().setContents(chest2_contents);
+            container1.getInventory().setContents(container1_contents);
+            if (container2 != null) {
+                container2.getInventory().setContents(container2_contents);
             }
             player.getInventory().setContents(player_contents);
 

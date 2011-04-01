@@ -32,12 +32,12 @@ import org.bukkit.util.BlockIterator;
  */
 public class OChestDump extends JavaPlugin {
 
-    private final OCDBlockListener blockListener = new OCDBlockListener(this);
+    private final OCDPlayerListener playerListener = new OCDPlayerListener(this);
 
     public void onEnable() {
         // Register our events
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvent(Event.Type.BLOCK_INTERACT, blockListener, Priority.Monitor, this);
+        pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Monitor, this);
 
         // Setup configs
         getDataFolder().mkdirs(); // Make sure dir exists

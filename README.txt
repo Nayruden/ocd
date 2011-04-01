@@ -1,4 +1,4 @@
-OChestDump v1.0
+OChestDump v1.01
 Copyright (c) 2011 Nayruden <http://omnivr.net>
 
 OChestDump allows you to dump the contents of your inventory to a container, or
@@ -26,6 +26,9 @@ To build this plugin from source, you'll need OLib, found at
 http://github.com/Nayruden/olib
 
 Changelog:
+v1.01 - 3/31/2011
+    * [CHANGE] Various Bukkit breakages.
+
 v1.0 - 2/19/2011
     * [ADD] Support for Dispensers.
     * [CHANGE] Some tweaks that Bukkit devs have deemed necessary.

@@ -33,7 +33,6 @@ import org.bukkit.util.BlockIterator;
 public class OChestDump extends JavaPlugin {
 
     private final int MAX_CHEST_DISTANCE = 4;
-
     private final OCDPlayerListener playerListener = new OCDPlayerListener(this);
 
     public void onEnable() {
@@ -82,33 +81,23 @@ public class OChestDump extends JavaPlugin {
                 return false;
             }
 
+            ContainerBlock container1 = (ContainerBlock) block.getState();
+            ContainerBlock container2 = null;
+            ItemStack[] container1_contents = container1.getInventory().getContents();
+            ItemStack[] container2_contents = null;
+
+            Util.DoubleChest double_chest = Util.getDoubleChestIfExists(block);
+            if (double_chest != null) {
+                block = (Block) double_chest.primary_chest;
+                container1 = (ContainerBlock) double_chest.primary_chest.getState();
+                container2 = (ContainerBlock) double_chest.secondary_chest.getState();
+                container1_contents = container1.getInventory().getContents();
+                container2_contents = container2.getInventory().getContents();
+            }
+
             if (!player.isOp() && getConfiguration().getBoolean("require-chest-open", false) && !OCDProtectionInfo.isOwner(block.getLocation(), player.getName())) {
                 player.sendMessage(ChatColor.RED + "You must prove you own this container by opening it first");
                 return false;
-            }
-
-            ContainerBlock container1 = (ContainerBlock) block.getState();
-            ContainerBlock container2 = null;
-            ItemStack[] container1_contents;
-            ItemStack[] container2_contents = null;
-            container1_contents = container1.getInventory().getContents();
-            if (block.getType() == Material.CHEST) { // Look for double chest
-                for (BlockFace neighbor : Constants.NEIGHBORS) {
-                    if (block.getRelative(neighbor).getType() == Material.CHEST) {
-                        ContainerBlock neighbor_chest = (ContainerBlock) block.getRelative(neighbor).getState();
-                        ItemStack[] neighbor_chest_contents = neighbor_chest.getInventory().getContents();
-                        if (neighbor == BlockFace.NORTH || neighbor == BlockFace.EAST) {
-                            container2 = container1;
-                            container2_contents = container1_contents;
-                            container1 = neighbor_chest;
-                            container1_contents = neighbor_chest_contents;
-                        } else {
-                            container2 = neighbor_chest;
-                            container2_contents = neighbor_chest_contents;
-                        }
-                        break;
-                    }
-                }
             }
 
             ItemStack[] container_contents = container1_contents;

@@ -123,24 +123,24 @@ public class OChestDump extends JavaPlugin {
                 Arrays.sort(container_contents, comparator);
             } else { // loot, stash, swap
 
-                int item_id = 0;
+                ItemDB.ItemIDAndDurability item = null;
                 if (args.length == 2) {
-                    item_id = ItemDB.nameOrIDToID(args[1]);
-                    if (item_id == -1) {
+                    item = ItemDB.nameOrIDToID(args[1]);
+                    if (item == null) {
                         player.sendMessage(ChatColor.RED + "Unknown item name/id: " + args[1]);
                         return false;
                     }
                 }
 
                 if (args[0].equalsIgnoreCase("stash")) {
-                    tryFill(player_contents, container_contents, item_id);
+                    tryFill(player_contents, container_contents, item);
                 } else if (args[0].equalsIgnoreCase("loot")) {
-                    tryFill(container_contents, player_contents, item_id);
+                    tryFill(container_contents, player_contents, item);
                 } else {
                     ItemStack[] new_chest_contents = new ItemStack[container_contents.length];
-                    tryFill(player_contents, new_chest_contents, 0);
-                    tryFill(container_contents, player_contents, 0);
-                    tryFill(container_contents, new_chest_contents, 0);
+                    tryFill(player_contents, new_chest_contents, null);
+                    tryFill(container_contents, player_contents, null);
+                    tryFill(container_contents, new_chest_contents, null);
                     container_contents = new_chest_contents;
                 }
             }
@@ -163,7 +163,7 @@ public class OChestDump extends JavaPlugin {
         return true;
     }
 
-    private void tryFill(ItemStack[] inventory_from, ItemStack[] inventory_to, int restricted_item_id) {
+    private void tryFill(ItemStack[] inventory_from, ItemStack[] inventory_to, ItemDB.ItemIDAndDurability restricted_item) {
         int from_size = inventory_from.length;
         int to_size = inventory_to.length;
         for (int from_slot = 0; from_slot < from_size; from_slot++) {
@@ -172,7 +172,7 @@ public class OChestDump extends JavaPlugin {
             }
 
             ItemStack from_stack = inventory_from[from_slot];
-            if (from_stack.getAmount() == 0 || (restricted_item_id != 0 && from_stack.getTypeId() != restricted_item_id)) {
+            if (from_stack.getAmount() == 0 || (restricted_item != null && (from_stack.getTypeId() != restricted_item.getID() || restricted_item.getDurability() == -1 || from_stack.getDurability() != restricted_item.getDurability()))) {
                 continue;
             }
 

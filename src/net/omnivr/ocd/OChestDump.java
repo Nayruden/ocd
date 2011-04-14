@@ -189,7 +189,7 @@ public class OChestDump extends JavaPlugin {
     }
 
     private void compactStack(ItemStack from_stack, ItemStack to_stack) {
-        if (from_stack.getType() != Material.AIR && from_stack.getType() == to_stack.getType() && from_stack.getDurability() == to_stack.getDurability()) {
+        if (from_stack != null && to_stack != null && from_stack.getType() != Material.AIR && from_stack.getType() == to_stack.getType() && from_stack.getDurability() == to_stack.getDurability()) {
             int max = to_stack.getMaxStackSize();
             int diff = Math.min(from_stack.getAmount() + to_stack.getAmount(), max) - to_stack.getAmount();
             to_stack.setAmount(to_stack.getAmount() + diff);
@@ -239,6 +239,7 @@ public class OChestDump extends JavaPlugin {
 
         public orderByAmount(ItemStack[] stacks) {
             for (ItemStack stack : stacks) {
+                if ( stack == null ) continue;
                 Integer amount = amounts.get(stack.getTypeId());
                 if (amount == null) {
                     amount = Integer.valueOf(0);

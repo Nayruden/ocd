@@ -1,4 +1,4 @@
-OChestDump v1.01
+OChestDump v1.10
 Copyright (c) 2011 Nayruden <http://omnivr.net>
 
 OChestDump allows you to dump the contents of your inventory to a container, or
@@ -26,8 +26,15 @@ To build this plugin from source, you'll need OLib, found at
 http://github.com/Nayruden/olib
 
 Changelog:
+v1.10 - 4/14/2011
+    * [ADD] Multiworld support.
+    * [ADD] Support for stashing/looting item durabilities (colored cloth).
+    * [CHANGE] Updated item database.
+    * [FIX] A protection issue with not recognizing a double chest as a single item.
+    * [FIX] Various Bukkit breakages.
+
 v1.01 - 3/31/2011
-    * [CHANGE] Various Bukkit breakages.
+    * [FIX] Various Bukkit breakages.
 
 v1.0 - 2/19/2011
     * [ADD] Support for Dispensers.

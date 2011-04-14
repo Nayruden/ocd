@@ -32,6 +32,8 @@ import org.bukkit.util.BlockIterator;
  */
 public class OChestDump extends JavaPlugin {
 
+    private final int MAX_CHEST_DISTANCE = 4;
+
     private final OCDPlayerListener playerListener = new OCDPlayerListener(this);
 
     public void onEnable() {
@@ -73,20 +75,14 @@ public class OChestDump extends JavaPlugin {
                 return false;
             }
 
-            Block block = null;
-            for (Iterator<Block> iter = new BlockIterator(player, 4); iter.hasNext();) {
-                block = iter.next();
-                if (block.getType() == Material.CHEST || block.getType() == Material.DISPENSER) {
-                    break;
-                }
-            }
+            Block block = player.getTargetBlock(null, MAX_CHEST_DISTANCE);
 
             if (block == null || !(block.getType() == Material.CHEST || block.getType() == Material.DISPENSER)) {
                 player.sendMessage(ChatColor.RED + "You need to look at a chest or dispenser to use this command");
                 return false;
             }
 
-            if (!player.isOp() && getConfiguration().getBoolean("require-chest-open", false) && !OCDProtectionInfo.isOwner(block.getLocation().toVector(), player.getName())) {
+            if (!player.isOp() && getConfiguration().getBoolean("require-chest-open", false) && !OCDProtectionInfo.isOwner(block.getLocation(), player.getName())) {
                 player.sendMessage(ChatColor.RED + "You must prove you own this container by opening it first");
                 return false;
             }

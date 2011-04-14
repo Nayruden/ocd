@@ -2,7 +2,7 @@ package net.omnivr.ocd;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.bukkit.util.Vector;
+import org.bukkit.Location;
 
 /**
  *
@@ -10,15 +10,13 @@ import org.bukkit.util.Vector;
  */
 public class OCDProtectionInfo {
 
-    static final Map<Vector, String> owners = new HashMap<Vector, String>();
+    static final Map<Location, String> owners = new HashMap<Location, String>();
 
-    static void setKnownOwner(Vector at, String who) {
-        at = new Vector(at.getBlockX(), at.getBlockY(), at.getBlockZ());
+    static void setKnownOwner(Location at, String who) {
         owners.put(at, who);
     }
 
-    static boolean isOwner(Vector at, String who) {
-        at = new Vector(at.getBlockX(), at.getBlockY(), at.getBlockZ());
+    static boolean isOwner(Location at, String who) {
         String owner = owners.get(at);
         if (owner == null || !owner.equalsIgnoreCase(who)) {
             return false;

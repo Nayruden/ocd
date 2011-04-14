@@ -22,7 +22,6 @@ public class OCDPlayerListener extends PlayerListener {
             return;
         }
 
-        Player player = event.getPlayer();
-        OCDProtectionInfo.setKnownOwner(event.getClickedBlock().getLocation().toVector(), event.getPlayer().getName());
+        OCDProtectionInfo.setKnownOwner(event.getClickedBlock().getLocation(), event.getPlayer().getName());
     }
 }
